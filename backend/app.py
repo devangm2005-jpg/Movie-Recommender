@@ -4,7 +4,7 @@ from flask_cors import CORS
 from recommender import recommend
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://movie-recommender-git-main-devang-mehtas-projects.vercel.app/"])
 
 @app.route("/")
 def home():

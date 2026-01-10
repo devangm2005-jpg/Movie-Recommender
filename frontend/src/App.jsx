@@ -15,7 +15,7 @@ function App() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:5000/recommend?movie=${encodeURIComponent(movie)}`
+        `https://movie-recommender-wuy9.onrender.com/recommend?movie=${movie}`
       )
 
       if (!response.ok) {

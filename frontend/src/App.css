@@ -3,13 +3,18 @@
   min-height: 100vh;
   background: linear-gradient(180deg, #0f0f0f, #1a1a1a);
   color: #ffffff;
+  padding: 2rem 1rem;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
 /* Title */
 .app-title {
   font-weight: 700;
   letter-spacing: 1px;
-  color: #e50914;
+  color: #e50914; /* Netflix red */
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
 }
 
 /* Search box */
@@ -17,12 +22,17 @@
   display: flex;
   gap: 10px;
   max-width: 500px;
+  margin: 0 auto 2rem;
 }
 
 .movie-input {
-  background-color: #121212;
+  flex: 1;
+  background-color: #1c1c1c;
   color: #fff;
   border: 1px solid #333;
+  padding: 0.6em 1em;
+  border-radius: 6px;
+  font-size: 1rem;
 }
 
 .movie-input::placeholder {
@@ -30,21 +40,39 @@
 }
 
 .movie-input:focus {
-  background-color: #121212;
+  background-color: #1c1c1c;
   color: #fff;
   border-color: #e50914;
-  box-shadow: none;
+  box-shadow: 0 0 5px #e50914;
+  outline: none;
 }
 
-/* Button */
+/* Recommend Button */
 .movie-btn {
-  background-color: #e50914;
+  background-color: #e50914; /* Netflix red */
   color: white;
   border: none;
+  border-radius: 6px;
+  padding: 0.6em 1.2em;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.25s;
 }
 
 .movie-btn:hover {
   background-color: #b20710;
+}
+
+/* Error message */
+.alert {
+  max-width: 500px;
+  margin: 1rem auto;
+  padding: 0.75rem 1rem;
+  background-color: #b20710;
+  color: #fff;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 500;
 }
 
 /* Movie cards */
@@ -56,8 +84,16 @@
   font-weight: 500;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
   transition: transform 0.3s ease;
+  color: #fff;
 }
 
 .movie-card:hover {
   transform: scale(1.05);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
 }

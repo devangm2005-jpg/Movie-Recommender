@@ -1,55 +1,68 @@
-import os
+# preprocessing.py
 import pandas as pd
+import numpy as np
 import ast
 from nltk.stem.porter import PorterStemmer
-
-# Absolute path of backend folder
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-ps = PorterStemmer()
-
-
-def convert(obj):
-    return [i['name'] for i in ast.literal_eval(obj)]
-
-
-def fetch_director(obj):
-    for i in ast.literal_eval(obj):
-        if i['job'] == 'Director':
-            return [i['name']]
-    return []
-
-
-def convert_cast(obj):
-    return [i['name'] for i in ast.literal_eval(obj)[:3]]
-
-
-def stem_words(words):
-    return " ".join([ps.stem(word) for word in words])
-
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 def prepare_dataframe(movies_path, credits_path):
-    # FIX: absolute paths
-    movies_path = os.path.join(BASE_DIR, movies_path)
-    credits_path = os.path.join(BASE_DIR, credits_path)
-
     movies = pd.read_csv(movies_path)
     credits = pd.read_csv(credits_path)
 
+    movies = movies[['genres','keywords','overview','title']]
     movies = movies.merge(credits, on='title')
-    movies = movies[['movie_id', 'title', 'overview', 'genres', 'keywords', 'cast', 'crew']]
-    movies.dropna(inplace=True)
+    movies = movies.dropna()
 
-    movies['genres'] = movies['genres'].apply(convert)
+    def convert(obj):
+        obj_list = []
+        for i in ast.literal_eval(obj):
+            obj_list.append(i['name'])
+        return obj_list
+
     movies['keywords'] = movies['keywords'].apply(convert)
-    movies['cast'] = movies['cast'].apply(convert_cast)
+    movies['genres'] = movies['genres'].apply(convert)
+
+    def fetch_director(obj):
+        director_list = []
+        for i in ast.literal_eval(obj):
+            if i['job'] == 'Director':
+                director_list.append(i['name'])
+                break
+        return director_list
+
     movies['crew'] = movies['crew'].apply(fetch_director)
-    movies['overview'] = movies['overview'].apply(lambda x: x.split())
 
-    for col in ['genres', 'keywords', 'cast', 'crew']:
-        movies[col] = movies[col].apply(lambda x: [i.replace(" ", "") for i in x])
+    def convert_cast(obj):
+        cast_list = []
+        counter = 0
+        for i in ast.literal_eval(obj):
+            counter += 1
+            if counter <= 3:
+                cast_list.append(i['name'])
+            else:
+                break
+        return cast_list
 
-    movies['tags'] = movies['overview'] + movies['genres'] + movies['keywords'] + movies['cast'] + movies['crew']
-    movies['tags'] = movies['tags'].apply(stem_words)
+    movies['cast'] = movies['cast'].apply(convert_cast)
+    movies['overview'] = movies['overview'].apply(lambda x:x.split())
+    movies['cast'] = movies['cast'].apply(lambda x : [i.replace(' ','') for i in x])
+    movies['crew'] = movies['crew'].apply(lambda x : [i.replace(' ','') for i in x])
+    movies['genres'] = movies['genres'].apply(lambda x : [i.replace(' ','') for i in x])
+    movies['keywords'] = movies['keywords'].apply(lambda x : [i.replace(' ','') for i in x])
+    movies['tags'] = movies['keywords'] + movies['genres'] + movies['cast'] + movies['crew']
 
-    return movies[['movie_id', 'title', 'tags']]
+    df = movies[['title','tags']]
+
+    ps = PorterStemmer()
+
+    def stem_words(obj):
+        return ' '.join([ps.stem(i) for i in obj])
+
+    df['tags'] = df['tags'].apply(stem_words)
+
+    cv = CountVectorizer(max_features=5000, stop_words='english')
+    vectors = cv.fit_transform(df['tags']).toarray()
+    similarity = cosine_similarity(vectors)
+
+    return df, similarity

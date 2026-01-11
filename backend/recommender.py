@@ -1,16 +1,8 @@
-import os
-from preprocessing import prepare_dataframe
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-df, similarity = prepare_dataframe(
-    os.path.join(BASE_DIR, "data/tmdb_5000_movies.csv"),
-    os.path.join(BASE_DIR, "data/tmdb_5000_credits.csv")
-)
+# recommender.py
+from load_data import df, similarity
 
 def recommend(movie_name):
     movie_name = movie_name.lower()
-
     titles = df['title'].str.lower()
 
     if movie_name not in titles.values:
@@ -21,8 +13,8 @@ def recommend(movie_name):
     distances = similarity[movie_index]
     movies_list = sorted(
         list(enumerate(distances)),
-        reverse=True,
-        key=lambda x: x[1]
+        key=lambda x: x[1],
+        reverse=True
     )[1:6]
 
     return [df.iloc[i[0]].title for i in movies_list]

@@ -15,7 +15,7 @@ function App() {
 
     try {
       const response = await fetch(
-        `https://movie-recommender-wuy9.onrender.com/recommend?movie=${movie}`
+        `https://movie-recommender-70vk.onrender.com/recommend?movie=${movie}`
       )
 
       if (!response.ok) {

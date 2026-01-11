@@ -1,19 +1,28 @@
-# recommender.py
+import os
 from preprocessing import prepare_dataframe
 
-# Load dataset once
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 df, similarity = prepare_dataframe(
-    'data/tmdb_5000_movies.csv',
-    'data/tmdb_5000_credits.csv'
+    os.path.join(BASE_DIR, "data/tmdb_5000_movies.csv"),
+    os.path.join(BASE_DIR, "data/tmdb_5000_credits.csv")
 )
 
 def recommend(movie_name):
-    try:
-        movie_index = df[df['title'] == movie_name].index[0]
-    except IndexError:
-        return []  # Movie not found
+    movie_name = movie_name.lower()
+
+    titles = df['title'].str.lower()
+
+    if movie_name not in titles.values:
+        return []
+
+    movie_index = titles[titles == movie_name].index[0]
 
     distances = similarity[movie_index]
-    movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
-    recommended_titles = [df.iloc[i[0]].title for i in movies_list]
-    return recommended_titles
+    movies_list = sorted(
+        list(enumerate(distances)),
+        reverse=True,
+        key=lambda x: x[1]
+    )[1:6]
+
+    return [df.iloc[i[0]].title for i in movies_list]
